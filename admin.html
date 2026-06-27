@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>MSR. | Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="admin.css"/>
+</head>
+<body>
+<div class="cursor-follow" id="cursor"></div>
+
+<!-- Login Screen -->
+<div class="login-overlay" id="login-screen">
+    <div class="login-card">
+        <h1 class="text-3xl font-black mb-2">MSR<span class="text-blue-400">.</span></h1>
+        <p class="text-gray-400 text-sm mb-6">Admin Access Required</p>
+        <form id="login-form">
+            <div class="flex flex-col gap-2">
+                <label class="text-xs uppercase tracking-wider text-gray-400">Password</label>
+                <input class="bg-gray-900 border border-gray-700 rounded-lg py-3 px-4 text-white outline-none focus:border-blue-400 transition-colors" type="password" id="login-password" placeholder="Enter password" required/>
+            </div>
+            <button type="submit" class="w-full mt-4 bg-blue-500 hover:bg-blue-400 text-white py-3 rounded-lg font-bold transition-colors">Login</button>
+            <p class="text-red-400 text-xs mt-2 hidden" id="login-error">Wrong password</p>
+        </form>
+        <a href="index.html" class="block text-center text-gray-500 text-xs mt-4 hover:text-white transition-colors">← Back to site</a>
+    </div>
+</div>
+
+<!-- Admin Dashboard -->
+<div class="dashboard hidden" id="dashboard">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="px-6 py-8">
+            <h1 class="text-xl font-black">MSR<span class="text-blue-400">.</span> Admin</h1>
+        </div>
+        <nav class="flex-1 px-3 space-y-1" id="admin-nav">
+            <a class="nav-item active flex items-center px-4 py-3 rounded-xl text-blue-400 bg-blue-400/10" data-section="projects">
+                <span class="material-symbols-outlined mr-3">folder_special</span>
+                <span class="text-sm font-medium">Projects</span>
+            </a>
+            <a class="nav-item flex items-center px-4 py-3 rounded-xl text-gray-400 hover:text-white hover:bg-white/5" data-section="about">
+                <span class="material-symbols-outlined mr-3">person</span>
+                <span class="text-sm font-medium">About</span>
+            </a>
+            <a class="nav-item flex items-center px-4 py-3 rounded-xl text-gray-400 hover:text-white hover:bg-white/5" data-section="showreel">
+                <span class="material-symbols-outlined mr-3">play_circle</span>
+                <span class="text-sm font-medium">Showreel</span>
+            </a>
+            <a class="nav-item flex items-center px-4 py-3 rounded-xl text-gray-400 hover:text-white hover:bg-white/5" data-section="skills">
+                <span class="material-symbols-outlined mr-3">star</span>
+                <span class="text-sm font-medium">Skills</span>
+            </a>
+            <a class="nav-item flex items-center px-4 py-3 rounded-xl text-gray-400 hover:text-white hover:bg-white/5" data-section="process">
+                <span class="material-symbols-outlined mr-3">timeline</span>
+                <span class="text-sm font-medium">Process</span>
+            </a>
+            <a class="nav-item flex items-center px-4 py-3 rounded-xl text-gray-400 hover:text-white hover:bg-white/5" data-section="testimonials">
+                <span class="material-symbols-outlined mr-3">format_quote</span>
+                <span class="text-sm font-medium">Testimonials</span>
+            </a>
+            <a class="nav-item flex items-center px-4 py-3 rounded-xl text-gray-400 hover:text-white hover:bg-white/5" data-section="contact">
+                <span class="material-symbols-outlined mr-3">mail</span>
+                <span class="text-sm font-medium">Contact & Social</span>
+            </a>
+            <a class="nav-item flex items-center px-4 py-3 rounded-xl text-gray-400 hover:text-white hover:bg-white/5" data-section="footer">
+                <span class="material-symbols-outlined mr-3">settings</span>
+                <span class="text-sm font-medium">Footer</span>
+            </a>
+        </nav>
+        <div class="p-4">
+            <button class="w-full bg-gray-800 hover:bg-red-900/50 text-gray-400 hover:text-red-400 py-2 rounded-lg text-sm transition-colors flex items-center justify-center gap-2" id="logout-btn">
+                <span class="material-symbols-outlined text-sm">logout</span> Logout
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <header class="header">
+            <h2 class="text-2xl font-bold" id="section-title">Projects</h2>
+            <div class="flex gap-3">
+                <button class="bg-gray-800 hover:bg-gray-700 text-gray-300 px-4 py-2 rounded-lg text-sm transition-colors flex items-center gap-2" id="export-btn">
+                    <span class="material-symbols-outlined text-sm">download</span> Export
+                </button>
+                <button class="bg-blue-500 hover:bg-blue-400 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors flex items-center gap-2" id="save-btn">
+                    <span class="material-symbols-outlined text-sm">save</span> Save All
+                </button>
+            </div>
+        </header>
+
+        <div class="content-area" id="content-area">
+            <!-- Projects Section -->
+            <div class="section-panel" id="section-projects">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold">All Projects</h3>
+                    <button class="bg-blue-500 hover:bg-blue-400 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors" id="add-project-btn">+ Add Project</button>
+                </div>
+                <div class="projects-list" id="projects-list"></div>
+            </div>
+
+            <!-- About Section -->
+            <div class="section-panel hidden" id="section-about">
+                <h3 class="text-lg font-bold mb-4">About Section</h3>
+                <div class="flex flex-col gap-4">
+                    <div>
+                        <label class="text-xs uppercase tracking-wider text-gray-400 block mb-2">Profile Photo URL</label>
+                        <input class="w-full bg-gray-900 border border-gray-700 rounded-lg py-3 px-4 text-white outline-none focus:border-blue-400 mb-2" type="url" id="edit-about-photo" placeholder="https://..."/>
+                        <div class="w-24 h-24 rounded-xl overflow-hidden border border-gray-700">
+                            <img id="preview-about-photo" src="" class="w-full h-full object-cover" alt="Preview"/>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-xs uppercase tracking-wider text-gray-400 block mb-2">Description</label>
+                        <textarea class="w-full bg-gray-900 border border-gray-700 rounded-lg py-3 px-4 text-white outline-none focus:border-blue-400 transition-colors resize-none" rows="4" id="edit-about-description"></textarea>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4">
+                        <div>
+                            <label class="text-xs uppercase tracking-wider text-gray-400 block mb-2">Years Exp</label>
+                            <input class="w-full bg-gray-900 border border-gray-700 rounded-lg py-3 px-4 text-white outline-none focus:border-blue-400" type="text" id="edit-about-years"/>
+                        </div>
+                        <div>
+                            <label class="text-xs uppercase tracking-wider text-gray-400 block mb-2">Projects</label>
+                            <input class="w-full bg-gray-900 border border-gray-700 rounded-lg py-3 px-4 text-white outline-none focus:border-blue-400" type="text" id="edit-about-projects"/>
+                        </div>
+                        <div>
+                            <label class="text-xs uppercase tracking-wider text-gray-400 block mb-2">Hours</label>
+                            <input class="w-full bg-gray-900 border border-gray-700 rounded-lg py-3 px-4 text-white outline-none focus:border-blue-400" type="text" id="edit-about-hours"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Showreel Section -->
+            <div class="section-panel hidden" id="section-showreel">
+                <h3 class="text-lg font-bold mb-4">Video Showreel</h3>
+                <div class="flex flex-col gap-4">
+                    <div>
+                        <label class="text-xs uppercase tracking-wider text-gray-400 block mb-2">YouTube Video URL</label>
+                        <input class="w-full bg-gray-900 border border-gray-700 rounded-lg py-3 px-4 text-white outline-none focus:border-blue-400" type="url" id="edit-showreel-url" placeholder="https://www.youtube.com/watch?v=..."/>
+                        <p class="text-xs text-gray-500 mt-1">Paste full YouTube URL (will be auto-converted to embed)</p>
+                    </div>
+                    <div>
+                        <label class="text-xs uppercase tracking-wider text-gray-400 block mb-2">Title</label>
+                        <input class="w-full bg-gray-900 border border-gray-700 rounded-lg py-3 px-4 text-white outline-none focus:border-blue-400" type="text" id="edit-showreel-title"/>
+                    </div>
+                    <div>
+                        <label class="text-xs uppercase tracking-wider text-gray-400 block mb-2">Subtitle</label>
+                        <input class="w-full bg-gray-900 border border-gray-700 rounded-lg py-3 px-4 text-white outline-none focus:border-blue-400" type="text" id="edit-showreel-subtitle"/>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Skills Section -->
+            <div class="section-panel hidden" id="section-skills">
+                <h3 class="text-lg font-bold mb-4">Skills</h3>
+                <div class="skills-list" id="skills-list"></div>
+                <button class="mt-4 bg-blue-500 hover:bg-blue-400 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors" id="add-skill-btn">+ Add Skill</button>
+            </div>
+
+            <!-- Process Section -->
+            <div class="section-panel hidden" id="section-process">
+                <h3 class="text-lg font-bold mb-4">The Process</h3>
+                <div class="process-list" id="process-list"></div>
+                <button class="mt-4 bg-blue-500 hover:bg-blue-400 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors" id="add-process-btn">+ Add Step</button>
+            </div>
+
+            <!-- Testimonials Section -->
+            <div class="section-panel hidden" id="section-testimonials">
+                <h3 class="text-lg font-bold mb-4">Testimonials</h3>
+                <div class="testimonials-list" id="testimonials-list"></div>
+                <button class="mt-4 bg-blue-500 hover:bg-blue-400 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors" id="add-testimonial-btn">+ Add Testimonial</button>
+            </div>
+
+            <!-- Contact & Social Section -->
+            <div class="section-panel hidden" id="section-contact">
+                <h3 class="text-lg font-bold mb-4">Contact & Social Links</h3>
+                <div class="flex flex-col gap-4">
+                    <div>
+                        <label class="text-xs uppercase tracking-wider text-gray-400 block mb-2">Email</label>
+                        <input class="w-full bg-gray-900 border border-gray-700 rounded-lg py-3 px-4 text-white outline-none focus:border-blue-400" type="email" id="edit-contact-email"/>
+                    </div>
+                    <div>
+                        <label class="text-xs uppercase tracking-wider text-gray-400 block mb-2">LinkedIn URL</label>
+                        <input class="w-full bg-gray-900 border border-gray-700 rounded-lg py-3 px-4 text-white outline-none focus:border-blue-400" type="url" id="edit-social-linkedin"/>
+                    </div>
+                    <div>
+                        <label class="text-xs uppercase tracking-wider text-gray-400 block mb-2">Instagram URL</label>
+                        <input class="w-full bg-gray-900 border border-gray-700 rounded-lg py-3 px-4 text-white outline-none focus:border-blue-400" type="url" id="edit-social-instagram"/>
+                    </div>
+                    <div>
+                        <label class="text-xs uppercase tracking-wider text-gray-400 block mb-2">CV Download URL</label>
+                        <input class="w-full bg-gray-900 border border-gray-700 rounded-lg py-3 px-4 text-white outline-none focus:border-blue-400" type="url" id="edit-cv-url" placeholder="https://.../cv.pdf"/>
+                        <p class="text-xs text-gray-500 mt-1">Direct link to PDF file for download</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Section -->
+            <div class="section-panel hidden" id="section-footer">
+                <h3 class="text-lg font-bold mb-4">Footer Settings</h3>
+                <div class="flex flex-col gap-4">
+                    <div>
+                        <label class="text-xs uppercase tracking-wider text-gray-400 block mb-2">Footer Text</label>
+                        <input class="w-full bg-gray-900 border border-gray-700 rounded-lg py-3 px-4 text-white outline-none focus:border-blue-400" type="text" id="edit-footer-text"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Project Edit Modal -->
+<div class="modal-overlay hidden" id="project-modal">
+    <div class="modal-card">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-xl font-bold" id="modal-title">Edit Project</h3>
+            <button class="w-8 h-8 rounded-full bg-gray-800 hover:bg-red-900 flex items-center justify-center transition-colors" id="modal-close">
+                <span class="material-symbols-outlined text-sm">close</span>
+            </button>
+        </div>
+        <form id="project-form" class="flex flex-col gap-4">
+            <input type="hidden" id="proj-edit-id"/>
+            <div>
+                <label class="text-xs uppercase tracking-wider text-gray-400 block mb-2">Title</label>
+                <input class="w-full bg-gray-900 border border-gray-700 rounded-lg py-3 px-4 text-white outline-none focus:border-blue-400" type="text" id="proj-edit-title" required/>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="text-xs uppercase tracking-wider text-gray-400 block mb-2">Category</label>
+                    <select class="w-full bg-gray-900 border border-gray-700 rounded-lg py-3 px-4 text-white outline-none focus:border-blue-400" id="proj-edit-category">
+                        <option value="Infrastructure">Infrastructure</option>
+                        <option value="Production">Production</option>
+                        <option value="Marketing">Marketing</option>
+                        <option value="Photography">Photography</option>
+                        <option value="Motion">Motion</option>
+                        <option value="Design">Design</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs uppercase tracking-wider text-gray-400 block mb-2">Year</label>
+                    <input class="w-full bg-gray-900 border border-gray-700 rounded-lg py-3 px-4 text-white outline-none focus:border-blue-400" type="text" id="proj-edit-year"/>
+                </div>
+            </div>
+            <div>
+                <label class="text-xs uppercase tracking-wider text-gray-400 block mb-2">Description</label>
+                <textarea class="w-full bg-gray-900 border border-gray-700 rounded-lg py-3 px-4 text-white outline-none focus:border-blue-400 resize-none" rows="3" id="proj-edit-description"></textarea>
+            </div>
+            <div>
+                <label class="text-xs uppercase tracking-wider text-gray-400 block mb-2">Thumbnail URL</label>
+                <input class="w-full bg-gray-900 border border-gray-700 rounded-lg py-3 px-4 text-white outline-none focus:border-blue-400" type="url" id="proj-edit-thumbnail" placeholder="https://..."/>
+                <p class="text-xs text-gray-500 mt-1">Paste image URL or use image hosting service</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" id="proj-edit-featured" class="rounded bg-gray-900 border-gray-700"/>
+                    <span class="text-sm text-gray-400">Featured</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" id="proj-edit-visible" class="rounded bg-gray-900 border-gray-700"/>
+                    <span class="text-sm text-gray-400">Visible</span>
+                </label>
+            </div>
+            <div class="flex gap-3 pt-2">
+                <button type="button" class="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 py-3 rounded-lg font-bold transition-colors" id="modal-cancel">Cancel</button>
+                <button type="submit" class="flex-1 bg-blue-500 hover:bg-blue-400 text-white py-3 rounded-lg font-bold transition-colors">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-container" id="toast-container"></div>
+
+<script src="data.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>
