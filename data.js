@@ -1,11 +1,35 @@
 // ============================================
 // DATA.JS - Default Data & localStorage CMS
-// Version 6 - Categories + Gallery
+// Version 7 - Projects (refactored from categories)
 // ============================================
 
 var PortfolioCMS = {
-    STORAGE_KEY: 'msr_portfolio_v6',
-    
+    STORAGE_KEY: 'msr_portfolio_v7',
+
+    // ponytail: one-time migration from v6 → v7, bump key if schema breaks again
+    _migrate() {
+        var old = localStorage.getItem('msr_portfolio_v6');
+        if (old) {
+            try {
+                var d = JSON.parse(old);
+                if (d.categories && !d.projects) {
+                    d.projects = d.categories.map(function(c) {
+                        return {
+                            id: c.id,
+                            title: c.title,
+                            description: c.description,
+                            cover: c.cover,
+                            gallery: c.gallery || []
+                        };
+                    });
+                    delete d.categories;
+                    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(d));
+                }
+            } catch (e) {}
+            localStorage.removeItem('msr_portfolio_v6');
+        }
+    },
+
     defaults: {
         about: {
             description: "With over six years of dedicated experience in corporate multimedia, I bridge the gap between technical precision and creative storytelling. My work transforms complex infrastructure and corporate visions into compelling visual experiences that drive engagement and deliver measurable impact.",
@@ -15,12 +39,11 @@ var PortfolioCMS = {
             clients: "30+",
             photo: "profile-shodri.png"
         },
-        categories: [
+        projects: [
             {
                 id: "photography",
                 title: "Photography",
                 description: "Corporate and event photography with cinematic aesthetics, capturing moments that tell stories.",
-                icon: "photo_camera",
                 cover: "bts-1.jpg",
                 gallery: ["bts-1.jpg", "bts-2.jpg", "bts-3.jpg", "bts-4.jpg", "bts-5.jpg", "bts-6.jpg"]
             },
@@ -28,7 +51,6 @@ var PortfolioCMS = {
                 id: "social-media",
                 title: "Social Media Campaign",
                 description: "Multi-platform content strategy and production for brand engagement across digital channels.",
-                icon: "share",
                 cover: "bts-2.jpg",
                 gallery: ["bts-2.jpg", "bts-3.jpg", "bts-5.jpg", "bts-6.jpg", "bts-1.jpg", "bts-4.jpg"]
             },
@@ -36,7 +58,6 @@ var PortfolioCMS = {
                 id: "live-streaming",
                 title: "Live Corporate Streaming",
                 description: "Professional multi-camera live streaming for corporate events, town halls, and press conferences.",
-                icon: "live_tv",
                 cover: "bts-3.jpg",
                 gallery: ["bts-3.jpg", "bts-1.jpg", "bts-4.jpg", "bts-2.jpg", "bts-6.jpg", "bts-5.jpg"]
             },
@@ -44,7 +65,6 @@ var PortfolioCMS = {
                 id: "corporate-design",
                 title: "Corporate Design",
                 description: "Motion graphics, brand identity, and visual design that elevates corporate communications.",
-                icon: "draw",
                 cover: "bts-4.jpg",
                 gallery: ["bts-4.jpg", "bts-5.jpg", "bts-1.jpg", "bts-6.jpg", "bts-2.jpg", "bts-3.jpg"]
             },
@@ -52,7 +72,6 @@ var PortfolioCMS = {
                 id: "corporate-video",
                 title: "Corporate Video",
                 description: "Premium corporate video production for annual reports, brand stories, and stakeholder communications.",
-                icon: "movie_edit",
                 cover: "bts-5.jpg",
                 gallery: ["bts-5.jpg", "bts-6.jpg", "bts-3.jpg", "bts-1.jpg", "bts-4.jpg", "bts-2.jpg"]
             }
@@ -132,7 +151,8 @@ var PortfolioCMS = {
     },
 
     getAll() {
-        const stored = localStorage.getItem(this.STORAGE_KEY);
+        this._migrate();
+        var stored = localStorage.getItem(this.STORAGE_KEY);
         return stored ? JSON.parse(stored) : JSON.parse(JSON.stringify(this.defaults));
     },
 
@@ -140,37 +160,46 @@ var PortfolioCMS = {
         localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
     },
 
-    getCategories() {
-        return this.getAll().categories || [];
+    getProjects() {
+        return this.getAll().projects || [];
     },
 
-    getCategoryById(id) {
-        return this.getCategories().find(c => c.id === id);
+    getProjectById(id) {
+        return this.getProjects().find(function(p) { return p.id === id; });
     },
 
-    addCategory(category) {
-        const data = this.getAll();
-        category.id = category.id || category.title.toLowerCase().replace(/\s+/g, '-');
-        data.categories.push(category);
+    addProject(project) {
+        var data = this.getAll();
+        project.id = project.id || project.title.toLowerCase().replace(/\s+/g, '-');
+        data.projects.push(project);
         this.saveAll(data);
-        return category;
+        return project;
     },
 
-    updateCategory(id, updates) {
-        const data = this.getAll();
-        const index = data.categories.findIndex(c => c.id === id);
+    updateProject(id, updates) {
+        var data = this.getAll();
+        var index = data.projects.findIndex(function(p) { return p.id === id; });
         if (index !== -1) {
-            data.categories[index] = { ...data.categories[index], ...updates };
+            data.projects[index] = Object.assign({}, data.projects[index], updates);
             this.saveAll(data);
-            return data.categories[index];
+            return data.projects[index];
         }
         return null;
     },
 
-    deleteCategory(id) {
-        const data = this.getAll();
-        data.categories = data.categories.filter(c => c.id !== id);
+    deleteProject(id) {
+        var data = this.getAll();
+        data.projects = data.projects.filter(function(p) { return p.id !== id; });
         this.saveAll(data);
+    },
+
+    duplicateProject(id) {
+        var proj = this.getProjectById(id);
+        if (!proj) return null;
+        var copy = JSON.parse(JSON.stringify(proj));
+        copy.id = proj.id + '-copy-' + Date.now();
+        copy.title = proj.title + ' (Copy)';
+        return this.addProject(copy);
     },
 
     updateAbout(aboutData) {
@@ -222,6 +251,7 @@ var PortfolioCMS = {
     },
 
     resetAll() {
+        localStorage.removeItem('msr_portfolio_v6');
         localStorage.removeItem(this.STORAGE_KEY);
         localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.defaults));
     },

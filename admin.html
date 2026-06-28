@@ -226,41 +226,21 @@
                 <label class="text-xs uppercase tracking-wider text-gray-400 block mb-2">Title</label>
                 <input class="w-full bg-gray-900 border border-gray-700 rounded-lg py-3 px-4 text-white outline-none focus:border-blue-400" type="text" id="proj-edit-title" required/>
             </div>
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="text-xs uppercase tracking-wider text-gray-400 block mb-2">Category</label>
-                    <select class="w-full bg-gray-900 border border-gray-700 rounded-lg py-3 px-4 text-white outline-none focus:border-blue-400" id="proj-edit-category">
-                        <option value="Infrastructure">Infrastructure</option>
-                        <option value="Production">Production</option>
-                        <option value="Marketing">Marketing</option>
-                        <option value="Photography">Photography</option>
-                        <option value="Motion">Motion</option>
-                        <option value="Design">Design</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="text-xs uppercase tracking-wider text-gray-400 block mb-2">Year</label>
-                    <input class="w-full bg-gray-900 border border-gray-700 rounded-lg py-3 px-4 text-white outline-none focus:border-blue-400" type="text" id="proj-edit-year"/>
-                </div>
-            </div>
             <div>
                 <label class="text-xs uppercase tracking-wider text-gray-400 block mb-2">Description</label>
-                <textarea class="w-full bg-gray-900 border border-gray-700 rounded-lg py-3 px-4 text-white outline-none focus:border-blue-400 resize-none" rows="3" id="proj-edit-description"></textarea>
+                <textarea class="w-full bg-gray-900 border border-gray-700 rounded-lg py-3 px-4 text-white outline-none focus:border-blue-400 resize-none" rows="2" id="proj-edit-description"></textarea>
             </div>
             <div>
-                <label class="text-xs uppercase tracking-wider text-gray-400 block mb-2">Thumbnail URL</label>
-                <input class="w-full bg-gray-900 border border-gray-700 rounded-lg py-3 px-4 text-white outline-none focus:border-blue-400" type="url" id="proj-edit-thumbnail" placeholder="https://..."/>
-                <p class="text-xs text-gray-500 mt-1">Paste image URL or use image hosting service</p>
+                <label class="text-xs uppercase tracking-wider text-gray-400 block mb-2">Cover Image</label>
+                <input class="w-full bg-gray-900 border border-gray-700 rounded-lg py-3 px-4 text-white outline-none focus:border-blue-400" type="text" id="proj-edit-cover" placeholder="e.g. bts-1.jpg or https://..."/>
             </div>
-            <div class="flex items-center gap-4">
-                <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" id="proj-edit-featured" class="rounded bg-gray-900 border-gray-700"/>
-                    <span class="text-sm text-gray-400">Featured</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" id="proj-edit-visible" class="rounded bg-gray-900 border-gray-700"/>
-                    <span class="text-sm text-gray-400">Visible</span>
-                </label>
+            <div>
+                <div class="flex items-center justify-between mb-2">
+                    <label class="text-xs uppercase tracking-wider text-gray-400">Gallery Images</label>
+                    <button type="button" class="text-xs text-blue-400 hover:text-blue-300" onclick="window.addGalleryEditItem('')">+ Add Image</button>
+                </div>
+                <div id="gallery-edit-list" class="flex flex-col gap-2 max-h-48 overflow-y-auto"></div>
+                <p class="text-xs text-gray-500 mt-1">File names (bts-1.jpg) or full URLs</p>
             </div>
             <div class="flex gap-3 pt-2">
                 <button type="button" class="flex-1 bg-gray-800 hover:bg-gray-700 text-gray-300 py-3 rounded-lg font-bold transition-colors" id="modal-cancel">Cancel</button>

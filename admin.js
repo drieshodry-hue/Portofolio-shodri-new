@@ -95,22 +95,18 @@
     // --- Projects CRUD ---
     function loadProjects() {
         var list = document.getElementById('projects-list');
-        var allProjects = PortfolioCMS.getAll().projects;
+        var allProjects = PortfolioCMS.getProjects();
 
         list.innerHTML = allProjects.map(function(p) {
             return '<div class="project-item" data-id="' + p.id + '">' +
-                '<img src="' + p.thumbnail + '" alt="' + p.title + '"/>' +
+                '<img src="' + p.cover + '" alt="' + escapeHtml(p.title) + '"/>' +
                 '<div class="project-item-info">' +
-                    '<div class="project-item-title">' + p.title + '</div>' +
-                    '<div class="project-item-category">' + p.category + ' · ' + (p.year || '') + '</div>' +
-                '</div>' +
-                '<div class="flex items-center gap-2">' +
-                    (p.featured ? '<span class="text-xs bg-yellow-400/20 text-yellow-400 px-2 py-0.5 rounded-full">★</span>' : '') +
-                    (p.visible ? '<span class="text-xs bg-green-400/20 text-green-400 px-2 py-0.5 rounded-full">✓</span>' : '<span class="text-xs bg-red-400/20 text-red-400 px-2 py-0.5 rounded-full">✗</span>') +
+                    '<div class="project-item-title">' + escapeHtml(p.title) + '</div>' +
+                    '<div class="project-item-category">' + (p.gallery ? p.gallery.length : 0) + ' photos</div>' +
                 '</div>' +
                 '<div class="project-item-actions">' +
-                    '<button class="btn-edit" onclick="window.editProject(' + p.id + ')"><span class="material-symbols-outlined text-sm">edit</span></button>' +
-                    '<button class="btn-delete" onclick="window.deleteProject(' + p.id + ')"><span class="material-symbols-outlined text-sm">delete</span></button>' +
+                    '<button class="btn-edit" onclick="window.editProject(\'' + p.id + '\')"><span class="material-symbols-outlined text-sm">edit</span></button>' +
+                    '<button class="btn-delete" onclick="window.deleteProject(\'' + p.id + '\')"><span class="material-symbols-outlined text-sm">delete</span></button>' +
                 '</div>' +
             '</div>';
         }).join('');
@@ -136,14 +132,18 @@
         form.addEventListener('submit', function(e) {
             e.preventDefault();
             var id = document.getElementById('proj-edit-id').value;
+            // Collect gallery from dynamic image list
+            var galleryImgs = document.querySelectorAll('#gallery-edit-list .gallery-edit-src');
+            var gallery = [];
+            galleryImgs.forEach(function(inp) {
+                if (inp.value) gallery.push(inp.value);
+            });
+
             var projectData = {
                 title: document.getElementById('proj-edit-title').value,
-                category: document.getElementById('proj-edit-category').value,
                 description: document.getElementById('proj-edit-description').value,
-                thumbnail: document.getElementById('proj-edit-thumbnail').value,
-                year: document.getElementById('proj-edit-year').value,
-                featured: document.getElementById('proj-edit-featured').checked,
-                visible: document.getElementById('proj-edit-visible').checked
+                cover: document.getElementById('proj-edit-cover').value,
+                gallery: gallery
             };
 
             if (id) {
@@ -159,26 +159,41 @@
     }
 
     window.editProject = function(id) {
-        var projects = PortfolioCMS.getAll().projects;
-        var project = projects.find(function(p) { return p.id === parseInt(id); });
+        var project = PortfolioCMS.getProjectById(id);
         if (!project) return;
 
         document.getElementById('modal-title').textContent = 'Edit Project';
         document.getElementById('proj-edit-id').value = project.id;
         document.getElementById('proj-edit-title').value = project.title;
-        document.getElementById('proj-edit-category').value = project.category;
-        document.getElementById('proj-edit-description').value = project.description;
-        document.getElementById('proj-edit-thumbnail').value = project.thumbnail;
-        document.getElementById('proj-edit-year').value = project.year || '';
-        document.getElementById('proj-edit-featured').checked = project.featured || false;
-        document.getElementById('proj-edit-visible').checked = project.visible !== false;
+        document.getElementById('proj-edit-description').value = project.description || '';
+        document.getElementById('proj-edit-cover').value = project.cover || '';
+
+        // Render gallery editor
+        var galleryList = document.getElementById('gallery-edit-list');
+        galleryList.innerHTML = '';
+        if (project.gallery) {
+            project.gallery.forEach(function(src) {
+                addGalleryEditItem(src);
+            });
+        }
 
         document.getElementById('project-modal').classList.remove('hidden');
     };
 
+    function addGalleryEditItem(src) {
+        var list = document.getElementById('gallery-edit-list');
+        var div = document.createElement('div');
+        div.className = 'flex items-center gap-2 mb-2';
+        div.innerHTML = '<input type="text" class="gallery-edit-src flex-1 bg-gray-900 border border-gray-700 rounded-lg py-2 px-3 text-white outline-none focus:border-blue-400" placeholder="Image filename or URL" value="' + (src || '') + '"/>' +
+            '<button type="button" class="btn-delete" onclick="this.parentElement.remove()"><span class="material-symbols-outlined text-sm">close</span></button>';
+        list.appendChild(div);
+    }
+
+    window.addGalleryEditItem = addGalleryEditItem;
+
     window.deleteProject = function(id) {
         if (!confirm('Delete this project?')) return;
-        PortfolioCMS.deleteProject(id);
+        PortfolioCMS.deleteProject(String(id));
         loadProjects();
         showToast('Project deleted', 'error');
     };
@@ -498,6 +513,13 @@
             URL.revokeObjectURL(url);
             showToast('Backup downloaded!', 'success');
         });
+    }
+
+    // --- Utility ---
+    function escapeHtml(text) {
+        var div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
 
     // --- Toast ---

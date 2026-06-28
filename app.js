@@ -49,7 +49,7 @@
         }
         // ponytail: render hero+nav first, defer rest to idle
         var rIC = window.requestIdleCallback || function(cb){ return setTimeout(cb, 1); };
-        rIC(function() { renderCategories(); });
+        rIC(function() { renderProjects(); });
         rIC(function() { renderSkills(); });
         renderVideoCarousel(data.videoPortfolio);
         rIC(function() { renderProcess(data.process); });
@@ -179,22 +179,21 @@
         return templates[Math.floor(Math.random() * templates.length)];
     }
 
-    // --- Render Category Cards ---
-    function renderCategories() {
-        const categories = PortfolioCMS.getCategories();
+    // --- Render Project Cards (replaces renderCategories) ---
+    function renderProjects() {
+        const projects = PortfolioCMS.getProjects();
         const grid = document.getElementById('categories-grid');
         if (!grid) return;
 
-        grid.innerHTML = categories.map((cat, i) => `
-            <div class="category-card glass-panel rounded-2xl overflow-hidden relative hover-lift stagger-item" data-category="${cat.id}" onclick="openGallery('${cat.id}')" style="animation-delay: ${i * 0.1}s">
+        grid.innerHTML = projects.map((proj, i) => `
+            <div class="category-card glass-panel rounded-2xl overflow-hidden relative hover-lift stagger-item" data-project="${proj.id}" onclick="openGallery('${proj.id}')" style="animation-delay: ${i * 0.1}s">
                 <div class="aspect-[4/5] relative overflow-hidden">
-                    <img alt="${escapeHtml(cat.title)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 grayscale group-hover:grayscale-0" src="${cat.cover}"/>
+                    <img alt="${escapeHtml(proj.title)}" class="w-full h-full object-cover" src="${proj.cover}"/>
                 </div>
                 <div class="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent"></div>
-                <div class="absolute inset-0 bg-primary/10 category-overlay"></div>
                 <div class="absolute bottom-0 left-0 right-0 p-stack-lg">
-                    <h3 class="font-headline-lg text-xl mb-1">${escapeHtml(cat.title)}</h3>
-                    <p class="text-on-surface-variant text-sm line-clamp-2">${escapeHtml(cat.description)}</p>
+                    <h3 class="font-headline-lg text-xl mb-1">${escapeHtml(proj.title)}</h3>
+                    <p class="text-on-surface-variant text-sm line-clamp-2">${escapeHtml(proj.description)}</p>
                 </div>
             </div>
         `).join('');
@@ -209,15 +208,14 @@
             el.style.transform='translateY(0)';
         });
 
-        // Event delegation for category clicks
-        // Use setTimeout to ensure openGallery is defined
+        // Event delegation for project clicks
         setTimeout(function() {
             document.addEventListener('click', function(e) {
-                var card = e.target.closest('[data-category]');
+                var card = e.target.closest('[data-project]');
                 if (card) {
-                    var catId = card.getAttribute('data-category');
-                    if (catId && typeof openGallery === 'function') {
-                        openGallery(catId);
+                    var projectId = card.getAttribute('data-project');
+                    if (projectId && typeof openGallery === 'function') {
+                        openGallery(projectId);
                     }
                 }
             });
@@ -225,9 +223,9 @@
     }
 
     // --- Gallery Modal ---
-    window.openGallery = function(categoryId) {
-        const cat = PortfolioCMS.getCategoryById(categoryId);
-        if (!cat || !cat.gallery) return;
+    window.openGallery = function(projectId) {
+        const proj = PortfolioCMS.getProjectById(projectId);
+        if (!proj || !proj.gallery) return;
 
         const modal = document.getElementById('gallery-modal');
         const img = document.getElementById('gallery-img');
@@ -239,7 +237,7 @@
         const backdrop = document.getElementById('gallery-backdrop');
 
         let currentIndex = 0;
-        const gallery = cat.gallery;
+        const gallery = proj.gallery;
         // ponytail: image cache + smart prefetch
         var imgCache = {};
         function preloadImg(src) {
@@ -252,12 +250,12 @@
         function showImage(index) {
             currentIndex = index;
             counter.textContent = `${index + 1} / ${gallery.length}`;
-            title.textContent = cat.title + ' — Photo ' + (index + 1);
+            title.textContent = proj.title + ' — Photo ' + (index + 1);
             img.style.opacity = '0';
             img.style.transform = 'scale(0.95)';
             var src = gallery[index];
             img.src = src;
-            img.alt = cat.title + ' — Photo ' + (index + 1) + ' of ' + gallery.length;
+            img.alt = proj.title + ' — Photo ' + (index + 1) + ' of ' + gallery.length;
             img.onload = function() {
                 img.style.transition = 'opacity .3s cubic-bezier(0.16,1,0.3,1), transform .3s cubic-bezier(0.16,1,0.3,1)';
                 img.style.opacity = '1';
