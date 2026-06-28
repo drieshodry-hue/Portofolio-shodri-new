@@ -109,6 +109,7 @@ var PortfolioCMS = {
         ],
         contact: {
             email: "drieshodry@gmail.com",
+            subject: "Portfolio Inquiry",
             phone: "+62-812-XXXX-XXXX",
             location: "Jakarta, Indonesia"
         },

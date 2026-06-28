@@ -6,13 +6,32 @@
 (function() {
     'use strict';
 
+    // ponytail: minimal state object, no full store needed for this app size
+    var AppState = {
+        currentGalleryIndex: 0,
+        currentCategory: null
+    };
+
+    // Brand intro — plays once per session
+    function showBrandIntro() {
+        if (sessionStorage.getItem('msr_intro_seen')) return;
+        var overlay = document.getElementById('brand-intro');
+        if (!overlay) return;
+        overlay.classList.add('active');
+        setTimeout(function() {
+            overlay.classList.remove('active');
+            sessionStorage.setItem('msr_intro_seen', 'true');
+        }, 2200);
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
+        showBrandIntro();
         initTheme();
         initParticles();
         initCursor();
         initNavbar();
         loadContent();
-        setTimeout(() => { initRevealObserver(); }, 100);
+        setTimeout(function() { initRevealObserver(); }, 100);
     });
 
     function loadContent() {
@@ -598,9 +617,10 @@
     }
 
     function renderContact(contact) {
-        const contactBtn = document.getElementById('contact-btn');
-        if (contactBtn && contact?.email) {
-            contactBtn.href = 'mailto:' + contact.email;
+        var contactBtn = document.getElementById('contact-btn');
+        if (contactBtn && contact && contact.email) {
+            var subject = contact.subject ? '?subject=' + encodeURIComponent(contact.subject) : '';
+            contactBtn.href = 'mailto:' + contact.email + subject;
         }
     }
 
