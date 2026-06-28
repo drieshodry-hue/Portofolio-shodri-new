@@ -36,11 +36,8 @@
 
     function loadContent() {
         const data = PortfolioCMS.getAll();
-        
-        // About
         if (data.about) {
             updateText('about-description', data.about.description);
-            // Set counter data-target from defaults, display "0" initially for animation
             const statYears = document.getElementById('stat-years');
             const statProjects = document.getElementById('stat-projects');
             const statHours = document.getElementById('stat-hours');
@@ -50,29 +47,15 @@
             const aboutImg = document.querySelector('#about img[alt="Portrait"]');
             if (aboutImg && data.about.photo) aboutImg.src = data.about.photo;
         }
-
-        // Categories
-        renderCategories();
-
-        // Skills with bars
-        renderSkills();
-
-        // Video Portfolio Carousel
+        // ponytail: render hero+nav first, defer rest to idle
+        var rIC = window.requestIdleCallback || function(cb){ return setTimeout(cb, 1); };
+        rIC(function() { renderCategories(); });
+        rIC(function() { renderSkills(); });
         renderVideoCarousel(data.videoPortfolio);
-
-        // Process
-        renderProcess(data.process);
-
-        // Testimonials
-        renderTestimonials(data.testimonials);
-
-        // Contact
+        rIC(function() { renderProcess(data.process); });
+        rIC(function() { renderTestimonials(data.testimonials); });
         renderContact(data.contact);
-
-        // Footer
         renderFooter(data.footer);
-
-        // CV Button
         renderCvButton(data.cvUrl);
     }
 
@@ -257,6 +240,14 @@
 
         let currentIndex = 0;
         const gallery = cat.gallery;
+        // ponytail: image cache + smart prefetch
+        var imgCache = {};
+        function preloadImg(src) {
+            if (imgCache[src]) return;
+            var i = new Image();
+            i.src = src;
+            imgCache[src] = i;
+        }
 
         function showImage(index) {
             currentIndex = index;
@@ -277,13 +268,15 @@
                 img.style.opacity = '1';
                 img.style.transform = 'scale(1)';
             }
+            // Smart prefetch next + prev
+            preloadImg(gallery[(index + 1) % gallery.length]);
+            preloadImg(gallery[(index - 1 + gallery.length) % gallery.length]);
             // Sync thumbs
             var thumbs = document.querySelectorAll('.gallery-thumb');
             for (var i = 0; i < thumbs.length; i++) {
                 if (i === index) thumbs[i].classList.add('active');
                 else thumbs[i].classList.remove('active');
             }
-            // Auto-scroll active thumb to center (Google Photos behavior)
             if (thumbs[index]) {
                 thumbs[index].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
             }
