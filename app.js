@@ -35,19 +35,20 @@
     });
 
     function loadContent() {
-        const data = PortfolioCMS.getAll();
-        if (data.about) {
+        var data = PortfolioCMS.getAll();
+        if (data.about && data.about.description) {
             updateText('about-description', data.about.description);
-            const statYears = document.getElementById('stat-years');
-            const statProjects = document.getElementById('stat-projects');
-            const statHours = document.getElementById('stat-hours');
-            if (statYears) { statYears.dataset.target = data.about.years.replace('+', ''); statYears.textContent = '0+'; }
-            if (statProjects) { statProjects.dataset.target = data.about.projects.replace('+', ''); statProjects.textContent = '0+'; }
-            if (statHours) { statHours.dataset.target = data.about.hours.replace('+', ''); statHours.textContent = '0+'; }
-            const aboutImg = document.querySelector('#about img[alt="Portrait"]');
+            var statYears = document.getElementById('stat-years');
+            var statProjects = document.getElementById('stat-projects');
+            var statHours = document.getElementById('stat-hours');
+            if (statYears && data.about.years) { statYears.dataset.target = data.about.years.replace('+', ''); statYears.textContent = '0+'; }
+            if (statProjects && data.about.projects) { statProjects.dataset.target = data.about.projects.replace('+', ''); statProjects.textContent = '0+'; }
+            if (statHours && data.about.hours) { statHours.dataset.target = data.about.hours.replace('+', ''); statHours.textContent = '0+'; }
+            var aboutImg = document.querySelector('#about img[alt="Portrait"]');
             if (aboutImg && data.about.photo) aboutImg.src = data.about.photo;
+        } else {
+            emptyState('about-description', 'No profile information available', 'Add your profile information to display here.');
         }
-        // ponytail: render hero+nav first, defer rest to idle
         var rIC = window.requestIdleCallback || function(cb){ return setTimeout(cb, 1); };
         rIC(function() { renderProjects(); });
         rIC(function() { renderSkills(); });
@@ -185,6 +186,11 @@
         const grid = document.getElementById('categories-grid');
         if (!grid) return;
 
+        if (!projects.length) {
+            emptyState(grid, 'No projects available', 'Start building your portfolio by creating your first project.');
+            return;
+        }
+
         grid.innerHTML = projects.map((proj, i) => `
             <div class="category-card glass-panel rounded-2xl overflow-hidden relative hover-lift stagger-item" data-project="${proj.id}" onclick="openGallery('${proj.id}')" style="animation-delay: ${i * 0.1}s">
                 <div class="aspect-[4/5] relative overflow-hidden">
@@ -225,7 +231,23 @@
     // --- Gallery Modal ---
     window.openGallery = function(projectId) {
         const proj = PortfolioCMS.getProjectById(projectId);
-        if (!proj || !proj.gallery) return;
+        if (!proj) return;
+
+        // ponytail: empty gallery → show empty state inside modal
+        if (!proj.gallery || !proj.gallery.length) {
+            emptyState('gallery-thumbs', 'No images available', 'This project does not contain any images yet.');
+            const modal = document.getElementById('gallery-modal');
+            const img = document.getElementById('gallery-img');
+            const title = document.getElementById('gallery-title');
+            const counter = document.getElementById('gallery-counter');
+            img.style.display = 'none';
+            counter.textContent = '';
+            title.textContent = proj.title;
+            modal.classList.remove('hidden');
+            modal.classList.add('show');
+            document.getElementById('gallery-close').onclick = closeGallery;
+            return;
+        }
 
         const modal = document.getElementById('gallery-modal');
         const img = document.getElementById('gallery-img');
@@ -326,6 +348,17 @@
         }, 300);
     };
 
+    // ponytail: text-only empty state helper, used by all render fns
+    function emptyState(container, title, description) {
+        var el = typeof container === 'string' ? document.getElementById(container) : container;
+        if (!el) return;
+        el.innerHTML = '<div class="flex flex-col items-center justify-center py-16 px-8 text-center">' +
+            '<h3 class="font-headline-lg text-lg mb-2 text-on-surface">' + escapeHtml(title) + '</h3>' +
+            '<p class="text-on-surface-variant text-sm max-w-md">' + escapeHtml(description) + '</p>' +
+            '</div>';
+    }
+    window.emptyState = emptyState;
+
     function updateText(id, text) {
         const el = document.getElementById(id);
         if (el && text) el.textContent = text;
@@ -346,9 +379,12 @@
 
     // --- Render Skills with Progress Bars ---
     function renderSkills() {
-        const data = PortfolioCMS.getAll();
-        const grid = document.getElementById('skills-grid');
-        if (!grid || !data.skills) return;
+        var data = PortfolioCMS.getAll();
+        var grid = document.getElementById('skills-grid');
+        if (!grid || !data.skills || !data.skills.length) {
+            if (grid) emptyState(grid, 'No skills available', 'Add skills to showcase your expertise.');
+            return;
+        }
 
         grid.innerHTML = data.skills.map((s, i) => `
             <div class="glass-panel p-stack-lg rounded-3xl flex flex-col items-center text-center stagger-item hover-lift group relative overflow-hidden" style="animation-delay: ${i * 0.08}s">
@@ -459,9 +495,12 @@
     }
 
     function renderProcess(process) {
-        if (!process) return;
         const container = document.getElementById('process-timeline');
         if (!container) return;
+        if (!process || !process.length) {
+            emptyState(container, 'No process defined', 'Add workflow steps to showcase your process.');
+            return;
+        }
 
         container.innerHTML = process.map((p, i) => {
             const isFirst = i === 0;
@@ -485,7 +524,10 @@
     }
 
     function renderTestimonials(testimonials) {
-        if (!testimonials || testimonials.length === 0) return;
+        if (!testimonials || !testimonials.length) {
+            emptyState('testimonials-slider', 'No testimonials yet', 'Add client testimonials to build credibility.');
+            return;
+        }
         const container = document.getElementById('testimonials-slider');
         if (!container) return;
 
@@ -612,6 +654,8 @@
         if (contactBtn && contact && contact.email) {
             var subject = contact.subject ? '?subject=' + encodeURIComponent(contact.subject) : '';
             contactBtn.href = 'mailto:' + contact.email + subject;
+        } else if (contactBtn) {
+            emptyState('contact-btn', 'Contact information not available', 'Please configure contact details in CMS.');
         }
     }
 
