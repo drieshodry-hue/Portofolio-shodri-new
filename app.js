@@ -48,7 +48,7 @@
         renderTestimonials(data.testimonials);
 
         // Contact
-        renderContact(data.contact, data.social);
+        renderContact(data.contact);
 
         // Footer
         renderFooter(data.footer);
@@ -189,9 +189,7 @@
                     <img alt="${escapeHtml(cat.title)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 grayscale group-hover:grayscale-0" src="${cat.cover}"/>
                 </div>
                 <div class="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent"></div>
-                <div class="absolute inset-0 bg-primary/10 category-overlay flex items-center justify-center">
-                    <span class="material-symbols-outlined text-primary category-icon text-6xl">${cat.icon}</span>
-                </div>
+                <div class="absolute inset-0 bg-primary/10 category-overlay"></div>
                 <div class="absolute bottom-0 left-0 right-0 p-stack-lg">
                     <h3 class="font-headline-lg text-xl mb-1">${escapeHtml(cat.title)}</h3>
                     <p class="text-on-surface-variant text-sm line-clamp-2">${escapeHtml(cat.description)}</p>
@@ -233,6 +231,10 @@
         const img = document.getElementById('gallery-img');
         const title = document.getElementById('gallery-title');
         const counter = document.getElementById('gallery-counter');
+        const closeBtn = document.getElementById('gallery-close');
+        const prevBtn = document.getElementById('gallery-prev');
+        const nextBtn = document.getElementById('gallery-next');
+        const backdrop = document.getElementById('gallery-backdrop');
 
         let currentIndex = 0;
         const gallery = cat.gallery;
@@ -240,56 +242,75 @@
         function showImage(index) {
             currentIndex = index;
             counter.textContent = `${index + 1} / ${gallery.length}`;
-            title.textContent = cat.title;
-            
+            title.textContent = cat.title + ' — Photo ' + (index + 1);
             img.style.opacity = '0';
             img.style.transform = 'scale(0.95)';
-            
             var src = gallery[index];
             img.src = src;
-            img.alt = cat.title + ' - Photo ' + (index + 1);
-            
-            // Fallback: always show after short delay
-            setTimeout(function() {
-                img.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+            img.alt = cat.title + ' — Photo ' + (index + 1) + ' of ' + gallery.length;
+            img.onload = function() {
+                img.style.transition = 'opacity .3s cubic-bezier(0.16,1,0.3,1), transform .3s cubic-bezier(0.16,1,0.3,1)';
                 img.style.opacity = '1';
                 img.style.transform = 'scale(1)';
-            }, 200);
+            };
+            if (img.complete) {
+                img.style.transition = 'opacity .3s cubic-bezier(0.16,1,0.3,1), transform .3s cubic-bezier(0.16,1,0.3,1)';
+                img.style.opacity = '1';
+                img.style.transform = 'scale(1)';
+            }
+            // Sync thumbs
+            var thumbs = document.querySelectorAll('.gallery-thumb');
+            for (var i = 0; i < thumbs.length; i++) {
+                if (i === index) thumbs[i].classList.add('active');
+                else thumbs[i].classList.remove('active');
+            }
+            // Auto-scroll active thumb to center (Google Photos behavior)
+            if (thumbs[index]) {
+                thumbs[index].scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+            }
         }
+
+        // Render thumbnails
+        var thumbsContainer = document.getElementById('gallery-thumbs');
+        thumbsContainer.innerHTML = gallery.map(function(src, i) {
+            return '<div class="gallery-thumb' + (i === 0 ? ' active' : '') + '" data-index="' + i + '" onclick="window.gotoThumb(' + i + ')"><img src="' + src + '" alt="Thumb ' + (i+1) + '"/></div>';
+        }).join('');
+        window.gotoThumb = function(idx) { showImage(idx); };
 
         showImage(currentIndex);
 
-        // Show modal with animation
         modal.classList.remove('hidden');
         modal.classList.add('show');
+        closeBtn.focus();
 
-        // Navigation
-        document.getElementById('gallery-prev').onclick = () => {
-            const newIndex = currentIndex === 0 ? gallery.length - 1 : currentIndex - 1;
-            showImage(newIndex);
+        prevBtn.onclick = function() {
+            showImage(currentIndex === 0 ? gallery.length - 1 : currentIndex - 1);
         };
-
-        document.getElementById('gallery-next').onclick = () => {
-            const newIndex = currentIndex >= gallery.length - 1 ? 0 : currentIndex + 1;
-            showImage(newIndex);
+        nextBtn.onclick = function() {
+            showImage(currentIndex >= gallery.length - 1 ? 0 : currentIndex + 1);
         };
+        // Click backdrop to close, NOT the image
+        backdrop.onclick = function(e) {
+            if (e.target === backdrop) closeGallery();
+        };
+        img.onclick = function(e) { e.stopPropagation(); };
+        closeBtn.onclick = closeGallery;
 
-        document.getElementById('gallery-backdrop').onclick = closeGallery;
-        document.getElementById('gallery-close').onclick = closeGallery;
-        document.onkeydown = (e) => {
-            if (!modal.classList.contains('hidden')) {
+        document.onkeydown = function(e) {
+            if (modal.classList.contains('show')) {
                 if (e.key === 'Escape') closeGallery();
-                if (e.key === 'ArrowLeft') document.getElementById('gallery-prev').click();
-                if (e.key === 'ArrowRight') document.getElementById('gallery-next').click();
+                if (e.key === 'ArrowLeft') prevBtn.click();
+                if (e.key === 'ArrowRight') nextBtn.click();
             }
         };
     };
 
     window.closeGallery = function() {
-        const modal = document.getElementById('gallery-modal');
+        var modal = document.getElementById('gallery-modal');
         modal.classList.remove('show');
         modal.classList.add('hide');
-        setTimeout(() => {
+        document.onkeydown = null;
+        setTimeout(function() {
             modal.classList.add('hidden');
             modal.classList.remove('hide');
         }, 300);
@@ -322,7 +343,6 @@
         grid.innerHTML = data.skills.map((s, i) => `
             <div class="glass-panel p-stack-lg rounded-3xl flex flex-col items-center text-center stagger-item hover-lift group relative overflow-hidden" style="animation-delay: ${i * 0.08}s">
                 <div class="card-glow"></div>
-                <span class="material-symbols-outlined text-primary text-5xl mb-stack-md group-hover:scale-110 group-hover:rotate-12 transition-transform duration-300">${s.icon}</span>
                 <h3 class="font-headline-lg text-lg mb-2">${s.title}</h3>
                 <p class="text-sm text-on-surface-variant font-body-md mb-stack-md">${s.description}</p>
                 <div class="w-full bg-surface-container-highest rounded-full h-2 overflow-hidden">
@@ -564,29 +584,24 @@
         autoSlideInterval = setInterval(next, 6000);
     }
 
-    function renderContact(contact, social) {
+    function renderFooter(footer) {
+        if (!footer) return;
+        updateText('footer-text', footer.text || '© 2026 Muhammad Shodri Rahmanto.');
+        const linksContainer = document.getElementById('footer-links');
+        if (!linksContainer) return;
+        const links = footer.links || [];
+        linksContainer.innerHTML = links.map(l => {
+            const isMailto = l.url.startsWith('mailto:');
+            const target = isMailto ? '' : ' target="_blank" rel="noopener noreferrer"';
+            return `<a class="text-on-surface-variant hover:text-primary transition-colors" href="${l.url}"${target}>${l.name}</a>`;
+        }).join('');
+    }
+
+    function renderContact(contact) {
         const contactBtn = document.getElementById('contact-btn');
         if (contactBtn && contact?.email) {
             contactBtn.href = 'mailto:' + contact.email;
         }
-        if (social) {
-            const linksContainer = document.getElementById('footer-links');
-            if (linksContainer) {
-                const links = [];
-                if (social.linkedin) links.push({ name: 'LinkedIn', url: social.linkedin });
-                if (social.instagram) links.push({ name: 'Instagram', url: social.instagram });
-                if (social.behance) links.push({ name: 'Behance', url: social.behance });
-                if (contact?.email) links.push({ name: 'Email', url: 'mailto:' + contact.email });
-                linksContainer.innerHTML = links.map(l =>
-                    `<a class="text-on-surface-variant hover:text-primary transition-colors" href="${l.url}" target="_blank">${l.name}</a>`
-                ).join('');
-            }
-        }
-    }
-
-    function renderFooter(footer) {
-        if (!footer) return;
-        updateText('footer-text', footer.text);
     }
 
     // --- Custom Cursor ---

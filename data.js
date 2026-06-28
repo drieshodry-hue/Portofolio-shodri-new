@@ -114,15 +114,16 @@ var PortfolioCMS = {
         },
         social: {
             linkedin: "https://www.linkedin.com/in/muhammad-shodri-rahmanto-957955178",
-            instagram: "https://www.instagram.com/srieshodry/",
+            instagram: "https://www.instagram.com/drieshodry/",
             behance: "https://www.behance.net/",
             youtube: "https://www.youtube.com/"
         },
         footer: {
-            text: "© 2024 Muhammad Shodri Rahmanto. Crafted for impact.",
+            text: "© 2026 Muhammad Shodri Rahmanto. Crafted for impact.",
             links: [
                 { name: "LinkedIn", url: "https://www.linkedin.com/in/muhammad-shodri-rahmanto-957955178" },
-                { name: "Instagram", url: "https://www.instagram.com/srieshodry/" },
+                { name: "Instagram", url: "https://www.instagram.com/drieshodry/" },
+                { name: "WhatsApp", url: "https://wa.me/6285156698852" },
                 { name: "Email", url: "mailto:drieshodry@gmail.com" }
             ]
         },
