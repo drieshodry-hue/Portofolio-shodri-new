@@ -192,14 +192,14 @@
         }
 
         grid.innerHTML = projects.map((proj, i) => `
-            <div class="category-card glass-panel rounded-2xl overflow-hidden relative hover-lift stagger-item" data-project="${proj.id}" onclick="openGallery('${proj.id}')" style="animation-delay: ${i * 0.1}s">
-                <div class="aspect-[4/5] relative overflow-hidden">
-                    <img alt="${escapeHtml(proj.title)}" class="w-full h-full object-cover" src="${proj.cover}"/>
+            <div class="group category-card glass-panel rounded-2xl overflow-hidden relative hover-lift stagger-item cursor-pointer border border-white/5 hover:border-primary/30 transition-all duration-500" data-project="${proj.id}" style="animation-delay: ${i * 0.1}s">
+                <div class="aspect-[3/4] relative overflow-hidden">
+                    <img alt="${escapeHtml(proj.title)}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" src="${proj.cover}"/>
                 </div>
-                <div class="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent"></div>
-                <div class="absolute bottom-0 left-0 right-0 p-stack-lg">
-                    <h3 class="font-headline-lg text-xl mb-1">${escapeHtml(proj.title)}</h3>
-                    <p class="text-on-surface-variant text-sm line-clamp-2">${escapeHtml(proj.description)}</p>
+                <div class="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div class="absolute bottom-0 left-0 right-0 p-5 md:p-6">
+                    <h3 class="font-headline-lg text-lg md:text-xl mb-1">${escapeHtml(proj.title)}</h3>
+                    <p class="text-on-surface-variant text-sm leading-relaxed">${escapeHtml(proj.description)}</p>
                 </div>
             </div>
         `).join('');
@@ -398,7 +398,7 @@
             </div>
         `).join('');
 
-        // Animate bars when visible
+        // Animate bars + percentage counters when visible
         const skillObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -409,9 +409,28 @@
                             bar.style.width = bar.dataset.value + '%';
                         }, i * 200);
                     });
+                    // Animate percentage counters inside skills
+                    const counters = entry.target.querySelectorAll('.counter');
+                    counters.forEach((counter, i) => {
+                        const target = parseInt(counter.dataset.target);
+                        if (!target) return;
+                        setTimeout(() => {
+                            const duration = 1500;
+                            const startTime = performance.now();
+                            function tick(now) {
+                                const elapsed = now - startTime;
+                                const progress = Math.min(elapsed / duration, 1);
+                                const eased = 1 - Math.pow(1 - progress, 3);
+                                counter.textContent = Math.round(target * eased) + '%';
+                                if (progress < 1) requestAnimationFrame(tick);
+                            }
+                            requestAnimationFrame(tick);
+                        }, i * 150);
+                    });
+                    skillObserver.unobserve(entry.target);
                 }
             });
-        }, { threshold: 0.3 });
+        }, { threshold: 0.2 });
         
         grid.querySelectorAll('.stagger-item').forEach(el => skillObserver.observe(el));
     }
