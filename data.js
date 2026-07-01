@@ -72,8 +72,8 @@ var PortfolioCMS = {
                 id: "corporate-video",
                 title: "Corporate Video",
                 description: "Premium corporate video production for annual reports, brand stories, and stakeholder communications.",
-                cover: "bts-5.jpg",
-                gallery: ["bts-5.jpg", "bts-6.jpg", "bts-3.jpg", "bts-1.jpg", "bts-4.jpg", "bts-2.jpg"]
+                cover: "video-1.jpg",
+                gallery: ["video-1.jpg", "video-2.jpg", "video-3.jpg", "video-4.jpg", "video-5.jpg", "video-6.jpg"]
             }
         ],
         videoPortfolio: [
