@@ -51,8 +51,8 @@ var PortfolioCMS = {
                 id: "social-media",
                 title: "Social Media Campaign",
                 description: "Multi-platform content strategy and production for brand engagement across digital channels.",
-                cover: "bts-2.jpg",
-                gallery: ["bts-2.jpg", "bts-3.jpg", "bts-5.jpg", "bts-6.jpg", "bts-1.jpg", "bts-4.jpg"]
+                cover: "social-media-1.jpg",
+                gallery: ["social-media-1.jpg", "social-media-2.jpg", "social-media-3.jpg", "social-media-4.jpg", "social-media-5.jpg", "social-media-6.jpg", "social-media-7.jpg"]
             },
             {
                 id: "live-streaming",
@@ -65,8 +65,8 @@ var PortfolioCMS = {
                 id: "corporate-design",
                 title: "Corporate Design",
                 description: "Motion graphics, brand identity, and visual design that elevates corporate communications.",
-                cover: "bts-4.jpg",
-                gallery: ["bts-4.jpg", "bts-5.jpg", "bts-1.jpg", "bts-6.jpg", "bts-2.jpg", "bts-3.jpg"]
+                cover: "corporate-design-1.jpg",
+                gallery: ["corporate-design-1.jpg", "corporate-design-2.jpg"]
             },
             {
                 id: "corporate-video",
