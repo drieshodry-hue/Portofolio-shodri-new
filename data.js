@@ -58,8 +58,8 @@ var PortfolioCMS = {
                 id: "live-streaming",
                 title: "Live Corporate Streaming",
                 description: "Professional multi-camera live streaming for corporate events, town halls, and press conferences.",
-                cover: "bts-3.jpg",
-                gallery: ["bts-3.jpg", "bts-1.jpg", "bts-4.jpg", "bts-2.jpg", "bts-6.jpg", "bts-5.jpg"]
+                cover: "stream-1.jpg",
+                gallery: ["stream-1.jpg", "stream-2.jpg", "stream-3.jpg", "stream-4.jpg", "stream-5.jpg", "stream-6.jpg", "stream-7.jpg", "stream-8.jpg", "stream-9.jpg"]
             },
             {
                 id: "corporate-design",
