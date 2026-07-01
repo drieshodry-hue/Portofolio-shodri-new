@@ -44,8 +44,8 @@ var PortfolioCMS = {
                 id: "photography",
                 title: "Photography",
                 description: "Corporate and event photography with cinematic aesthetics, capturing moments that tell stories.",
-                cover: "bts-1.jpg",
-                gallery: ["bts-1.jpg", "bts-2.jpg", "bts-3.jpg", "bts-4.jpg", "bts-5.jpg", "bts-6.jpg"]
+                cover: "photo-1.jpg",
+                gallery: ["photo-1.jpg", "photo-2.jpg", "photo-3.jpg", "photo-4.jpg", "photo-5.jpg", "photo-6.jpg", "photo-7.jpg", "photo-8.jpg", "photo-9.jpg"]
             },
             {
                 id: "social-media",
